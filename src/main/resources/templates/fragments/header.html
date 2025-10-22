@@ -8,47 +8,70 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <!-- Navigation Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <!-- Logo -->
-                <div class="logo">
-                    <a th:href="@{/}">🛒 JavaCart</a>
+    <!-- Premium Navigation Header -->
+    <nav class="premium-nav">
+        <div class="nav-container">
+            <!-- Logo -->
+            <a th:href="@{/}" class="nav-brand">
+                <svg class="brand-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 2L3 6V18C3 18.5304 3.21071 19.0391 3.58579 19.4142C3.96086 19.7893 4.46957 20 5 20H19C19.5304 20 20.0391 19.7893 20.4142 19.4142C20.7893 19.0391 21 18.5304 21 18V6L18 2H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 10C16 11.0609 15.5786 12.0783 14.8284 12.8284C14.0783 13.5786 13.0609 14 12 14C10.9391 14 9.92172 13.5786 9.17157 12.8284C8.42143 12.0783 8 11.0609 8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>JavaCart</span>
+            </a>
+            
+            <!-- Navigation Links -->
+            <ul class="nav-menu">
+                <li><a th:href="@{/}" class="nav-link">Home</a></li>
+                <li><a th:href="@{/products}" class="nav-link">Products</a></li>
+                
+                <!-- Authenticated User Links -->
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/cart}" class="nav-link nav-link-cart">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 2L3 6V18C3 18.5304 3.21071 19.0391 3.58579 19.4142C3.96086 19.7893 4.46957 20 5 20H19C19.5304 20 20.0391 19.7893 20.4142 19.4142C20.7893 19.0391 21 18.5304 21 18V6L18 2H6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 6H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Cart</span>
+                        <span class="cart-badge" th:if="${cartCount != null and cartCount > 0}" th:text="${cartCount}">0</span>
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/orders}" class="nav-link">Orders</a>
+                </li>
+            </ul>
+            
+            <!-- Right Side Actions -->
+            <div class="nav-actions">
+                <!-- Authenticated User -->
+                <div sec:authorize="isAuthenticated()" class="nav-user-menu">
+                    <div class="nav-user-info">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span sec:authentication="name">username</span>
+                    </div>
+                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
                 </div>
                 
-                <!-- Navigation Links -->
-                <nav class="nav">
-                    <a th:href="@{/products}" class="nav-link">Products</a>
-                    
-                    <!-- Show these links only if user is logged in -->
-                    <span sec:authorize="isAuthenticated()">
-                        <a th:href="@{/cart}" class="nav-link">
-                            🛒 Cart
-                            <span class="cart-badge" th:if="${cartCount != null and cartCount > 0}" 
-                                  th:text="${cartCount}">0</span>
-                        </a>
-                        <a th:href="@{/orders}" class="nav-link">My Orders</a>
-                    </span>
-                    
-                    <!-- User Info -->
-                    <span sec:authorize="isAuthenticated()">
-                        <span class="user-info">
-                            👤 <span sec:authentication="name">username</span>
-                        </span>
-                        <form th:action="@{/logout}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
-                        </form>
-                    </span>
-                    
-                    <!-- Show login/register links if not logged in -->
-                    <span sec:authorize="!isAuthenticated()">
-                        <a th:href="@{/login}" class="btn btn-primary btn-sm">Login</a>
-                        <a th:href="@{/register}" class="btn btn-secondary btn-sm">Register</a>
-                    </span>
-                </nav>
+                <!-- Guest User -->
+                <div sec:authorize="!isAuthenticated()" class="nav-auth-buttons">
+                    <a th:href="@{/login}" class="btn btn-secondary btn-sm">Login</a>
+                    <a th:href="@{/register}" class="btn btn-primary btn-sm">Get Started</a>
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 </body>
 </html>

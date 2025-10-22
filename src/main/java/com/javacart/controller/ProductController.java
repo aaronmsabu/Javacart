@@ -42,7 +42,17 @@ public class ProductController {
     }
     
     /**
-     * Display product listing page (home page).
+     * Display landing/home page with hero section.
+     * 
+     * @return template name "index" (renders index.html)
+     */
+    @GetMapping("/")
+    public String home() {
+        return "index"; // Renders src/main/resources/templates/index.html
+    }
+    
+    /**
+     * Display product listing page.
      * 
      * Supports optional search parameter:
      * - /products - show all products
@@ -56,7 +66,7 @@ public class ProductController {
      * @param model Spring MVC model for passing data to view
      * @return template name "products" (renders products.html)
      */
-    @GetMapping({"/", "/products"})
+    @GetMapping("/products")
     public String listProducts(@RequestParam(value = "search", required = false) String search,
                               Model model) {
         List<Product> products;
