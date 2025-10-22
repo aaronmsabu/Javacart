@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name} + ' - JavaCart'">Product Detail - JavaCart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{fragments/header :: body}"></div>
+    
+    <!-- Main Content -->
+    <main class="container main-content">
+        <div class="product-detail">
+            <!-- Back Link -->
+            <p><a th:href="@{/products}" class="back-link">← Back to Products</a></p>
+            
+            <!-- Product Detail Container -->
+            <div class="product-detail-container">
+                <!-- Product Image -->
+                <div class="product-detail-image">
+                    <img th:src="${product.imageUrl}" 
+                         th:alt="${product.name}"
+                         onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
+                </div>
+                
+                <!-- Product Information -->
+                <div class="product-detail-info">
+                    <h1 th:text="${product.name}">Product Name</h1>
+                    
+                    <div class="product-price-large">
+                        $<span th:text="${#numbers.formatDecimal(product.price, 1, 2)}">0.00</span>
+                    </div>
+                    
+                    <!-- Stock Status -->
+                    <div class="stock-status-large" 
+                         th:classappend="${product.stock > 0 ? 'in-stock' : 'out-of-stock'}">
+                        <span th:if="${product.stock > 0}">
+                            ✓ In Stock - <span th:text="${product.stock}">0</span> available
+                        </span>
+                        <span th:if="${product.stock == 0}">✗ Out of Stock</span>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="product-description-full">
+                        <h3>Description</h3>
+                        <p th:text="${product.description}">Product description goes here...</p>
+                    </div>
+                    
+                    <!-- Add to Cart Form (only if logged in and in stock) -->
+                    <div class="add-to-cart-section" sec:authorize="isAuthenticated()" 
+                         th:if="${product.stock > 0}">
+                        <form th:action="@{/cart/add}" method="post" class="add-to-cart-form">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            
+                            <div class="quantity-selector">
+                                <label for="quantity">Quantity:</label>
+                                <input type="number" id="quantity" name="quantity" 
+                                       value="1" min="1" th:max="${product.stock}" 
+                                       class="quantity-input">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-large">
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Login Prompt (if not logged in) -->
+                    <div class="login-prompt" sec:authorize="!isAuthenticated()">
+                        <p>Please <a th:href="@{/login}">login</a> to add this product to your cart.</p>
+                    </div>
+                    
+                    <!-- Out of Stock Message -->
+                    <div th:if="${product.stock == 0}" class="out-of-stock-message">
+                        <p>This product is currently out of stock. Please check back later.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: body}"></div>
+</body>
+</html>

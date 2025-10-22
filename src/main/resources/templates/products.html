@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - JavaCart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{fragments/header :: body}"></div>
+    
+    <!-- Main Content -->
+    <main class="container main-content">
+        <h1>Product Catalog</h1>
+        
+        <!-- Search Bar -->
+        <div class="search-section">
+            <form th:action="@{/products}" method="get" class="search-form">
+                <input type="text" name="search" placeholder="Search products..." 
+                       th:value="${searchTerm}" class="search-input">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a th:href="@{/products}" class="btn btn-secondary" 
+                   th:if="${searchTerm != null}">Clear</a>
+            </form>
+        </div>
+        
+        <!-- Messages -->
+        <div th:if="${param.error}" class="alert alert-error">
+            <p th:text="${param.error[0] == 'notfound' ? 'Product not found.' : 'An error occurred.'}">Error</p>
+        </div>
+        
+        <!-- Search Results Info -->
+        <p th:if="${searchTerm != null}" class="search-info">
+            Showing results for "<span th:text="${searchTerm}">keyword</span>" - 
+            <span th:text="${#lists.size(products)}">0</span> product(s) found
+        </p>
+        
+        <!-- Product Grid -->
+        <div class="product-grid" th:if="${not #lists.isEmpty(products)}">
+            <!-- Iterate over products list -->
+            <div class="product-card" th:each="product : ${products}">
+                <!-- Product Image -->
+                <div class="product-image">
+                    <img th:src="${product.imageUrl}" 
+                         th:alt="${product.name}"
+                         onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                </div>
+                
+                <!-- Product Info -->
+                <div class="product-info">
+                    <h3 class="product-name">
+                        <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.name}">Product Name</a>
+                    </h3>
+                    
+                    <p class="product-description" th:text="${#strings.abbreviate(product.description, 100)}">
+                        Product description...
+                    </p>
+                    
+                    <div class="product-footer">
+                        <p class="product-price">
+                            $<span th:text="${#numbers.formatDecimal(product.price, 1, 2)}">0.00</span>
+                        </p>
+                        
+                        <!-- Stock Status -->
+                        <p class="stock-status" th:classappend="${product.stock > 0 ? 'in-stock' : 'out-of-stock'}">
+                            <span th:if="${product.stock > 0}">
+                                ✓ In Stock (<span th:text="${product.stock}">0</span>)
+                            </span>
+                            <span th:if="${product.stock == 0}">✗ Out of Stock</span>
+                        </p>
+                        
+                        <!-- Add to Cart Button (only if logged in and in stock) -->
+                        <div class="product-actions">
+                            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-secondary btn-sm">
+                                View Details
+                            </a>
+                            
+                            <form th:action="@{/cart/add}" method="post" 
+                                  sec:authorize="isAuthenticated()"
+                                  th:if="${product.stock > 0}"
+                                  style="display: inline;">
+                                <input type="hidden" name="productId" th:value="${product.id}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
+                            </form>
+                            
+                            <!-- Login prompt if not logged in -->
+                            <a th:href="@{/login}" sec:authorize="!isAuthenticated()" 
+                               class="btn btn-primary btn-sm">
+                                Login to Buy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- No Products Found -->
+        <div th:if="${#lists.isEmpty(products)}" class="alert alert-info">
+            <p th:if="${searchTerm != null}">No products found for "<span th:text="${searchTerm}">keyword</span>".</p>
+            <p th:if="${searchTerm == null}">No products available at the moment.</p>
+        </div>
+    </main>
+    
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: body}"></div>
+</body>
+</html>

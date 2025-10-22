@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - JavaCart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{fragments/header :: body}"></div>
+    
+    <!-- Main Content -->
+    <main class="container main-content">
+        <!-- Success Message (for order confirmation) -->
+        <div th:if="${param.success}" class="alert alert-success">
+            <h2>✓ Order Placed Successfully!</h2>
+            <p>Thank you for your order. Your order has been confirmed and is being processed.</p>
+        </div>
+        
+        <h1>Order Details</h1>
+        
+        <!-- Back Link -->
+        <p><a th:href="@{/orders}" class="back-link">← Back to Order History</a></p>
+        
+        <!-- Order Information -->
+        <div class="order-detail-container">
+            <div class="order-detail-header">
+                <div>
+                    <h2>Order #<span th:text="${order.id}">123</span></h2>
+                    <p><strong>Date:</strong> 
+                        <span th:text="${#temporals.format(order.orderDate, 'MMMM dd, yyyy HH:mm')}">January 01, 2025</span>
+                    </p>
+                    <p><strong>Status:</strong> 
+                        <span class="order-status" th:text="${order.status}">PENDING</span>
+                    </p>
+                </div>
+                <div class="order-total-large">
+                    <p>Total Amount</p>
+                    <h2>$<span th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2)}">0.00</span></h2>
+                </div>
+            </div>
+            
+            <!-- Order Items -->
+            <div class="order-items-section">
+                <h3>Items Purchased</h3>
+                
+                <table class="order-detail-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${order.orderItems}">
+                            <td>
+                                <div class="order-item-info">
+                                    <img th:src="${item.product.imageUrl}" 
+                                         th:alt="${item.product.name}"
+                                         class="order-item-image"
+                                         onerror="this.src='https://via.placeholder.com/80x80?text=No+Image'">
+                                    <span th:text="${item.product.name}">Product Name</span>
+                                </div>
+                            </td>
+                            <td>$<span th:text="${#numbers.formatDecimal(item.priceAtPurchase, 1, 2)}">0.00</span></td>
+                            <td th:text="${item.quantity}">1</td>
+                            <td>$<span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}">0.00</span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="3"><strong>Total:</strong></td>
+                            <td><strong>$<span th:text="${#numbers.formatDecimal(order.totalPrice, 1, 2)}">0.00</span></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <!-- Continue Shopping Button -->
+            <div class="order-actions-bottom">
+                <a th:href="@{/products}" class="btn btn-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: body}"></div>
+</body>
+</html>

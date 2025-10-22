@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title != null ? title + ' - JavaCart' : 'JavaCart - Shopping Made Easy'}">JavaCart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <div class="logo">
+                    <a th:href="@{/}">🛒 JavaCart</a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <nav class="nav">
+                    <a th:href="@{/products}" class="nav-link">Products</a>
+                    
+                    <!-- Show these links only if user is logged in -->
+                    <span sec:authorize="isAuthenticated()">
+                        <a th:href="@{/cart}" class="nav-link">
+                            🛒 Cart
+                            <span class="cart-badge" th:if="${cartCount != null and cartCount > 0}" 
+                                  th:text="${cartCount}">0</span>
+                        </a>
+                        <a th:href="@{/orders}" class="nav-link">My Orders</a>
+                    </span>
+                    
+                    <!-- User Info -->
+                    <span sec:authorize="isAuthenticated()">
+                        <span class="user-info">
+                            👤 <span sec:authentication="name">username</span>
+                        </span>
+                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+                        </form>
+                    </span>
+                    
+                    <!-- Show login/register links if not logged in -->
+                    <span sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/login}" class="btn btn-primary btn-sm">Login</a>
+                        <a th:href="@{/register}" class="btn btn-secondary btn-sm">Register</a>
+                    </span>
+                </nav>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

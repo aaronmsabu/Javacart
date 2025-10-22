@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - JavaCart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{fragments/header :: body}"></div>
+    
+    <!-- Main Content -->
+    <main class="container main-content">
+        <h1>Checkout</h1>
+        
+        <div class="checkout-container">
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+                
+                <table class="checkout-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${cartItems}">
+                            <td th:text="${item.product.name}">Product Name</td>
+                            <td th:text="${item.quantity}">1</td>
+                            <td>$<span th:text="${#numbers.formatDecimal(item.product.price, 1, 2)}">0.00</span></td>
+                            <td>$<span th:text="${#numbers.formatDecimal(item.subtotal, 1, 2)}">0.00</span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="3"><strong>Total:</strong></td>
+                            <td><strong>$<span th:text="${#numbers.formatDecimal(cartTotal, 1, 2)}">0.00</span></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <!-- Checkout Form -->
+            <div class="checkout-form-section">
+                <h2>Confirm Order</h2>
+                
+                <div class="checkout-info">
+                    <p>By clicking "Place Order", you confirm that you want to purchase the items listed above.</p>
+                    <p>Stock will be decremented and your cart will be cleared after successful order placement.</p>
+                </div>
+                
+                <!-- Confirm Order Form -->
+                <form th:action="@{/checkout}" method="post" class="checkout-form">
+                    <div class="form-actions">
+                        <a th:href="@{/cart}" class="btn btn-secondary">Back to Cart</a>
+                        <button type="submit" class="btn btn-primary btn-large">Place Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: body}"></div>
+</body>
+</html>

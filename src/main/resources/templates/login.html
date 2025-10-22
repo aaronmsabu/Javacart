@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - JavaCart</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:replace="~{fragments/header :: body}"></div>
+    
+    <!-- Main Content -->
+    <main class="container main-content">
+        <div class="auth-container">
+            <h1>Login</h1>
+            
+            <!-- Success Messages -->
+            <div th:if="${param.registered}" class="alert alert-success">
+                Registration successful! Please login with your credentials.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success">
+                You have been logged out successfully.
+            </div>
+            
+            <!-- Error Messages -->
+            <div th:if="${error}" class="alert alert-error" th:text="${error}">
+                Invalid username or password
+            </div>
+            
+            <!-- Login Form -->
+            <!-- Spring Security processes this form automatically -->
+            <form th:action="@{/login}" method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" 
+                           required class="form-input" placeholder="Enter your username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" 
+                           required class="form-input" placeholder="Enter your password">
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">Login</button>
+            </form>
+            
+            <!-- Register Link -->
+            <div class="auth-footer">
+                <p>Don't have an account? <a th:href="@{/register}">Register here</a></p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Include Footer -->
+    <div th:replace="~{fragments/footer :: body}"></div>
+</body>
+</html>
