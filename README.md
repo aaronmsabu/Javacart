@@ -47,13 +47,13 @@ Built as a **beginner-friendly** learning project with extensive inline comments
 
 | Layer          | Technology                          |
 |----------------|-------------------------------------|
-| **Backend**    | Spring Boot 3.1.5, Java 17         |
+| **Backend**    | Spring Boot 3.5.0, Java 21         |
 | **Web**        | Spring MVC, Thymeleaf              |
 | **Security**   | Spring Security (Form-based login) |
 | **Persistence**| Spring Data JPA, Hibernate         |
 | **Database**   | MySQL 8.0+                         |
-| **Build Tool** | Maven                              |
-| **Server**     | Embedded Tomcat                    |
+| **Build Tool** | Maven 3.9.11                       |
+| **Server**     | Embedded Tomcat 10.1.41            |
 
 ---
 
@@ -101,17 +101,20 @@ User Request → Controller → Service → Repository → Database
 
 Before running JavaCart, ensure you have:
 
-1. **Java 17** or higher
+1. **Java 21** (required - exact version)
    ```bash
    java -version
+   # Should show: openjdk version "21.0.x" or similar
    ```
+   
+   **⚠️ Important**: This project requires **Java 21**. If you have multiple Java versions installed, you must use Java 21 specifically.
 
-2. **Maven 3.6+**
+2. **Maven 3.9.11** or higher
    ```bash
    mvn -version
    ```
 
-3. **MySQL 8.0+**
+3. **MySQL 8.0+** or MySQL 9.x
    - Running on `localhost:3306`
    - With user `root` and password (update in `application.properties`)
 
@@ -182,23 +185,96 @@ Skip SQL and register a new user through the web interface at `/register`.
 
 ## ▶️ Running the Application
 
-### Method 1: Maven Command
+### Prerequisites Check
+
+**IMPORTANT**: This application requires Java 21. Before running, verify your Java version:
 
 ```bash
+java -version
+```
+
+If you see Java 25, 17, 11, or any version other than 21, you need to switch to Java 21.
+
+### Setting the Correct Java Version (macOS/Linux)
+
+If you have multiple Java versions installed, set the correct one:
+
+**macOS:**
+```bash
+# Check available Java versions
+/usr/libexec/java_home -V
+
+# Set Java 21 for current terminal session
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Verify it's set correctly
+java -version
+# Should show: openjdk version "21.0.x"
+```
+
+**Linux:**
+```bash
+# Check available Java versions
+update-java-alternatives --list
+
+# Set Java 21 (adjust path as needed)
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Verify
+java -version
+```
+
+**Permanent Solution** (add to `~/.zshrc` or `~/.bashrc`):
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)  # macOS
+# OR
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64  # Linux
+```
+
+### Method 1: Maven Command (Recommended)
+
+```bash
+# Ensure Java 21 is active
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Run the application
 mvn spring-boot:run
 ```
 
 ### Method 2: Java JAR
 
 ```bash
-mvn clean package
+# Build with Java 21
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+mvn clean package -DskipTests
+
+# Run the JAR
 java -jar target/javacart-1.0.0.jar
 ```
 
-### Method 3: IDE
+### Method 3: Background Process (Server Mode)
 
-- **IntelliJ IDEA**: Right-click `JavacartApplication.java` → Run
-- **VS Code**: Open `JavacartApplication.java` → Click "Run" above `main()`
+```bash
+# Set Java 21 and run in background
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+mvn spring-boot:run > /dev/null 2>&1 &
+
+# Check if running
+lsof -ti:8080
+```
+
+### Method 4: IDE
+
+**IntelliJ IDEA:**
+1. Go to File → Project Structure → Project
+2. Set Project SDK to Java 21
+3. Right-click `JavacartApplication.java` → Run
+
+**VS Code:**
+1. Install "Extension Pack for Java"
+2. Open `JavacartApplication.java`
+3. Click "Run" above `main()` method
 
 ### Expected Output
 
@@ -209,13 +285,30 @@ java -jar target/javacart-1.0.0.jar
  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
   '  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v3.1.5)
+ :: Spring Boot ::                (v3.5.0)
 
 ...
-2025-10-22 10:00:00.000  INFO 12345 --- [main] c.j.JavacartApplication : Started JavacartApplication in 5.123 seconds
+2025-10-23 10:00:00.000  INFO 12345 --- [main] c.j.JavacartApplication : Started JavacartApplication in 3.5 seconds
+2025-10-23 10:00:00.001  INFO 12345 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
 ```
 
 Application is now running at: **http://localhost:8080**
+
+### Quick Start Commands (All-in-One)
+
+**First Time Setup:**
+```bash
+# Create database
+mysql -u root -p < setup-database.sql
+
+# Set Java 21 and run
+export JAVA_HOME=$(/usr/libexec/java_home -v 21) && mvn spring-boot:run
+```
+
+**Subsequent Runs:**
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21) && mvn spring-boot:run
+```
 
 ---
 
@@ -256,7 +349,8 @@ Application is now running at: **http://localhost:8080**
 
 | Page            | URL                          | Auth Required |
 |-----------------|------------------------------|---------------|
-| Home/Products   | http://localhost:8080        | No            |
+| Landing Page    | http://localhost:8080        | No            |
+| Product Catalog | http://localhost:8080/products | No          |
 | Product Detail  | http://localhost:8080/products/1 | No        |
 | Login           | http://localhost:8080/login  | No            |
 | Register        | http://localhost:8080/register | No          |
@@ -360,6 +454,41 @@ javacart/
 ---
 
 ## 🐛 Troubleshooting
+
+### Issue: Wrong Java Version Error
+
+**Symptom:**
+```
+Unsupported class file major version 65
+```
+or
+```
+java.lang.UnsupportedClassVersionError
+```
+
+**Solution:**
+This means you're using the wrong Java version. The app requires Java 21.
+
+```bash
+# Check your current Java version
+java -version
+
+# Set to Java 21 (macOS)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Verify
+java -version
+# Should show: openjdk version "21.0.x"
+
+# Re-run the app
+mvn clean spring-boot:run
+```
+
+If Java 21 is not installed, download it from:
+- **Temurin**: https://adoptium.net/temurin/releases/?version=21
+- **Oracle**: https://www.oracle.com/java/technologies/downloads/#java21
+
+---
 
 ### Issue: Application won't start
 

@@ -4,15 +4,17 @@
 
 Before running the application, complete these steps:
 
+**IMPORTANT**: This application requires **Java 21** specifically. Using Java 17, 25, or any other version will cause compilation errors.
+
 ---
 
 ## STEP 1: Install Prerequisites
 
 Ensure you have installed:
 
-- [ ] **Java 17** or higher (`java -version`)
-- [ ] **Maven 3.6+** (`mvn -version`)
-- [ ] **MySQL 8.0+** (running on `localhost:3306`)
+- [ ] **Java 21** (exact version required) - `java -version` should show "21.0.x"
+- [ ] **Maven 3.9.11+** (`mvn -version`)
+- [ ] **MySQL 8.0+** or MySQL 9.x (running on `localhost:3306`)
 
 ---
 
@@ -50,7 +52,72 @@ mysql -u root -p < setup-database.sql
 
 ---
 
-## STEP 3: Configure Application
+## STEP 4: Verify Java Version
+
+**CRITICAL**: Before building, ensure you're using Java 21.
+
+```bash
+java -version
+```
+
+**Expected output:**
+```
+openjdk version "21.0.5" 2024-10-15
+OpenJDK Runtime Environment Temurin-21.0.5+11 (build 21.0.5+11)
+OpenJDK 64-Bit Server VM Temurin-21.0.5+11 (build 21.0.5+11, mixed mode)
+```
+
+### If you see a different version (e.g., Java 25, 17, 11):
+
+**macOS:**
+```bash
+# List all installed Java versions
+/usr/libexec/java_home -V
+
+# Output should show something like:
+# 21.0.5 (x86_64) "Eclipse Temurin 21" - "/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home"
+
+# Set Java 21 for current session
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Verify it worked
+java -version
+```
+
+**Linux:**
+```bash
+# Check available versions
+update-java-alternatives --list
+
+# Set Java 21 (adjust path based on your installation)
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Verify
+java -version
+```
+
+### Make it Permanent (Optional)
+
+Add to your shell profile (`~/.zshrc` for macOS, `~/.bashrc` for Linux):
+
+```bash
+# macOS
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Linux (adjust path)
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+```
+
+Then reload your shell:
+```bash
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+---
+
+## STEP 5: Configure Application
 
 Edit `src/main/resources/application.properties`:
 
@@ -63,11 +130,17 @@ spring.datasource.password=YOUR_MYSQL_PASSWORD
 
 ---
 
-## STEP 4: Build the Project
+## STEP 6: Build the Project
 
-In the `javacart` directory, run:
+In the `javacart` directory, with Java 21 active:
 
 ```bash
+# Ensure Java 21 is set (if not permanent)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)  # macOS
+# OR
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64  # Linux
+
+# Clean build
 mvn clean install
 ```
 
@@ -75,47 +148,87 @@ mvn clean install
 ```
 [INFO] BUILD SUCCESS
 [INFO] Total time: XX.XXX s
+[INFO] Finished at: 2025-10-23T10:00:00-07:00
 ```
+
+**If you see errors about class version**, you're not using Java 21. Go back to STEP 4.
 
 ---
 
-## STEP 5: Run the Application
+## STEP 7: Run the Application
 
-### Option A: Maven (Recommended for Development)
+### Option A: Maven (Recommended)
 
 ```bash
+# Ensure Java 21 is active
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Run the app
 mvn spring-boot:run
 ```
 
 ### Option B: JAR File
 
 ```bash
-mvn clean package
+# Build (if not already done)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+mvn clean package -DskipTests
+
+# Run the JAR
 java -jar target/javacart-1.0.0.jar
 ```
 
-### Option C: VS Code / IDE
+### Option C: Background Process (Server Mode)
 
-- Open `JavacartApplication.java`
-- Click "Run" button or right-click → Run
+```bash
+# Set Java 21 and run in background
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+mvn spring-boot:run > /dev/null 2>&1 &
+
+# The app runs in background
+# To stop it later: lsof -ti:8080 | xargs kill -9
+```
+
+### Option D: VS Code / IDE
+
+**IntelliJ IDEA:**
+1. File → Project Structure → Project → Set SDK to Java 21
+2. Right-click `JavacartApplication.java` → Run
+
+**VS Code:**
+1. Install "Extension Pack for Java"
+2. Set Java 21 in settings
+3. Open `JavacartApplication.java` → Click "Run" above `main()`
 
 ---
 
-## STEP 6: Verify Application Started
+## STEP 8: Verify Application Started
 
 **Look for this in the console:**
 
 ```
-Started JavacartApplication in X.XXX seconds (JVM running for X.XXX)
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.5.0)
+
+...
+Started JavacartApplication in 3.5 seconds (JVM running for 4.2)
+Tomcat started on port 8080 (http) with context path ''
 ```
 
-**Open browser and visit:** http://localhost:8080
+**Open browser and visit:** 
+- **Landing Page**: http://localhost:8080
+- **Product Catalog**: http://localhost:8080/products
 
-You should see the product catalog page!
+You should see the premium landing page with animated hero section!
 
 ---
 
-## STEP 7: Populate Sample Data
+## STEP 9: Populate Sample Data
 
 After the application starts successfully (tables are auto-created by Hibernate), stop the app and run:
 
@@ -131,17 +244,22 @@ This inserts:
 
 ---
 
-## STEP 8: Restart and Test
+## STEP 10: Restart and Test
 
 1. **Restart the application:**
    ```bash
+   export JAVA_HOME=$(/usr/libexec/java_home -v 21)
    mvn spring-boot:run
    ```
 
-2. **Open browser:** http://localhost:8080
+2. **Open browser:** 
+   - Landing Page: http://localhost:8080
+   - Product Catalog: http://localhost:8080/products
 
 3. **Test the flow:**
-   - Browse products
+   - Browse premium landing page with animated hero
+   - Click "View Products" or "Shop Now"
+   - Use search bar to filter products
    - Click "Login" → username: `testuser`, password: `password123`
    - Click "Add to Cart" on any product
    - View cart at http://localhost:8080/cart
@@ -154,15 +272,52 @@ This inserts:
 ## 🎉 Success Indicators
 
 ✅ Application starts without errors  
-✅ Products display on home page  
+✅ Console shows "Spring Boot :: (v3.5.0)"  
+✅ Landing page displays with animated hero section  
+✅ Products display on catalog page (/products)  
+✅ Search bar works with glass morphism design  
 ✅ Login works with test credentials  
 ✅ Can add products to cart  
+✅ Cart shows badge count in navigation  
 ✅ Checkout creates order and clears cart  
 ✅ Order appears in order history  
 
 ---
 
 ## 🐛 Common Issues
+
+### Issue: "Unsupported class file major version 65"
+
+**Solution:** You're not using Java 21. Run these commands:
+
+```bash
+# macOS
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Linux
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+
+# Verify
+java -version  # Must show 21.0.x
+
+# Clean rebuild
+mvn clean install
+
+# Run
+mvn spring-boot:run
+```
+
+---
+
+### Issue: "Could not find or load main class"
+
+**Solution:** Ensure you're in the `javacart` directory (where `pom.xml` is located):
+
+```bash
+cd /path/to/javacart
+mvn spring-boot:run
+```
 
 ### Issue: "Access denied for user 'root'@'localhost'"
 
@@ -198,7 +353,65 @@ server.port=8081
 
 ---
 
-## 📚 Next Steps
+## � Quick Commands Reference
+
+### First Time Setup (Complete Flow)
+
+```bash
+# 1. Set Java 21
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# 2. Verify Java version
+java -version  # Must show 21.0.x
+
+# 3. Create database
+mysql -u root -p < setup-database.sql
+
+# 4. Build project
+mvn clean install
+
+# 5. Run application
+mvn spring-boot:run
+```
+
+### Daily Development (Quick Start)
+
+```bash
+# One-liner to run the app
+export JAVA_HOME=$(/usr/libexec/java_home -v 21) && mvn spring-boot:run
+```
+
+### Background Mode (Server)
+
+```bash
+# Start in background
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+mvn spring-boot:run > /dev/null 2>&1 &
+
+# Check if running
+lsof -ti:8080
+
+# Stop the server
+lsof -ti:8080 | xargs kill -9
+```
+
+### Rebuild After Changes
+
+```bash
+# Stop server if running
+lsof -ti:8080 | xargs kill -9
+
+# Clean rebuild
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+mvn clean package -DskipTests
+
+# Restart
+mvn spring-boot:run
+```
+
+---
+
+## �📚 Next Steps
 
 Once the app is running successfully:
 
